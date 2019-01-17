@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Slf4j
 public class SpringExceptionResolver implements HandlerExceptionResolver {
-    private static Logger log = LoggerFactory.getLogger(SpringExceptionResolver.class);
+//    private static Logger log = LoggerFactory.getLogger(SpringExceptionResolver.class);
     @Override
     public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object o, Exception ex) {
         String url = request.getRequestURL().toString();

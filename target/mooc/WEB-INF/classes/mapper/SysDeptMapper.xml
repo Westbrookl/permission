@@ -138,4 +138,38 @@
       operate_ip = #{operateIp,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <!--筛选出内部名称并且parentId相同 且id不相同的部门的数目，这里有一个值得注意的地方就是parameterType = "map"-->
+  <!--对于DAO中需要传入多个参数来说的话，每一个c参数都需要加上一个@Param-->
+  <select id="countByNameAndParentId" parameterType="map" resultType="int">
+    SELECT count(1)
+    FROM sys_dept
+    WHERE name = #{name}
+    <if test="parentId != null">
+      AND parent_id = #{parentId}
+    </if>
+    <if test="id != null">
+      AND id != #{id}
+    </if>
+  </select>
+  <!--值得注意的是 mybatis返回一个对象和mybaits返回多个对象的时候SQL的语句是一样的，说明对多个对象的封装是Mybatis的自动配置-->
+  <select id="getAllDept" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM sys_dept
+  </select>
+  <!--对于level的模糊查询-->
+  <select id="getChildDeptListByLevel"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sys_dept
+    WHERE level like ${level} || '.%'
+  </select>
+  <!--批量改变-->
+  <update id="batchUpdateLevel" parameterType="map">
+    <foreach collection="sysDeptList" item="dept" separator=";">
+      UPDATE sys_dept
+      SET level = #{dept.level}
+      WHERE id = #{dept.id}
+    </foreach>
+  </update>
 </mapper>

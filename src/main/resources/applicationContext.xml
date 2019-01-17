@@ -22,7 +22,12 @@
         <property name="minIdle" value="3"/>
         <property name="maxActive" value="20"/>
         <property name="maxWait" value="60000"/>
-        <property name="filters" value="stat,wall"/>
+        <property name="proxyFilters">
+        <list>
+            <ref bean="stat-filter" />
+            <ref bean="wall-filter"/>
+        </list>
+        </property>
     </bean>
     <!--配置mybatis-->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
@@ -46,8 +51,16 @@
         <property name="logSlowSql" value="true"/>
         <property name="mergeSql" value="true"/>
     </bean>
+    <!--在spring-db.xml的wall-filter中添加config,修改后如下-->
+
     <bean id="wall-filter" class="com.alibaba.druid.wall.WallFilter">
         <property name="dbType" value="mysql"/>
+       <property name="config" ref="wall-config"/>
+    </bean>
+
+    <!--解决mybatis与druid集成后，wallFilter sql注入异常-->
+    <bean id="wall-config" class="com.alibaba.druid.wall.WallConfig">
+        <property name="multiStatementAllow" value="true"/>
     </bean>
 
 </beans>
