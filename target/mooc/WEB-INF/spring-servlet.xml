@@ -29,8 +29,10 @@
     <bean class="com.jhc.common.ApplicationContextHelper" lazy-init="false"/>
 
     <bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
+
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/views/"/>
         <property name="suffix" value=".jsp"/>
     </bean>
+
 </beans>

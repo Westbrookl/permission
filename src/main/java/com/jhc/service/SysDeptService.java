@@ -1,6 +1,7 @@
 package com.jhc.service;
 
 import com.google.common.base.Preconditions;
+import com.jhc.common.RequestHolder;
 import com.jhc.dao.SysDeptMapper;
 import com.jhc.exception.ParamException;
 import com.jhc.model.SysDept;
@@ -50,11 +51,12 @@ public class SysDeptService {
         SysDept after = SysDept.builder().id(param.getId()).name(param.getName()).seq(param.getSeq()).remark(param.getRemark()).parentId(param.getParentId())
                         .build();
         after.setLevel(LevelUntil.calculateLevel(getLevel(param.getParentId()), param.getParentId()));
-        after.setOperateIp("127.0.0.1");
+        after.setOperateIp(RequestHolder.getCurrentUser().getUsername());
         after.setOperateTime(new Date());
         after.setOperator("System Update");
         updateWithChild(before,after);
     }
+
     @Transactional
     public void updateWithChild(SysDept before,SysDept after){
         String newLevelPrefix = after.getLevel();
@@ -101,7 +103,7 @@ public class SysDeptService {
          * 计算Level
          */
         dept.setLevel(LevelUntil.calculateLevel(getLevel(deptParam.getParentId()),deptParam.getParentId()));
-        dept.setOperator("System");//TODO
+        dept.setOperator(RequestHolder.getCurrentUser().getUsername());
         dept.setOperateTime(new Date());
         dept.setOperateIp("127.0.0.1");
 

@@ -1,7 +1,6 @@
 package com.jhc.controller;
 
 import com.jhc.common.JsonData;
-import com.jhc.dao.SysDeptMapper;
 import com.jhc.dto.DeptLevelDto;
 import com.jhc.param.DeptParam;
 import com.jhc.service.SysDeptService;

@@ -161,4 +161,47 @@
       operate_ip = #{operateIp,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="countByTelephone" parameterType="map" resultType="int">
+    SELECT COUNT(1)
+    FROM sys_user
+    WHERE telephone = #{telephone}
+    <if test="id!=null">
+      AND id != #{id}
+    </if>
+
+  </select>
+
+  <select id="countByEmail" parameterType="map"  resultType="int">
+    SELECT COUNT(1)
+    FROM sys_user
+    WHERE  email =#{email}
+    <if test="id!=null">
+      AND id != #{id}
+    </if>
+
+  </select>
+
+  <select id="findByKeyWord" parameterType="string" resultMap="BaseResultMap">
+    SELECT
+    <!--<include refid = Base_Column_List/>-->
+    <include refid="Base_Column_List" />
+    FROM sys_user
+    WHERE email = #{username}
+    OR telephone = #{username}
+  </select>
+
+  <select id="countByDeptId" parameterType="int" resultType="int">
+    SELECT count(1)
+    FROM sys_user
+    WHERE dept_id = #{deptId}
+  </select>
+
+  <select id="getPageByDeptId" parameterType="map" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM sys_user
+    WHERE dept_id = #{deptId}
+    ORDER BY username ASC
+    limit #{pageQuery.offset},#{pageQuery.pageSize}
+  </select>
 </mapper>
