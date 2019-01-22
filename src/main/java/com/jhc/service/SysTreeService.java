@@ -3,18 +3,19 @@ package com.jhc.service;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.jhc.dao.SysAclModuleMapper;
 import com.jhc.dao.SysDeptMapper;
 import com.jhc.dto.DeptLevelDto;
+import com.jhc.dto.AclModuleLevelDto;
+import com.jhc.model.SysAclModule;
 import com.jhc.model.SysDept;
 import com.jhc.util.LevelUntil;
+
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author jhc on 2019/1/16
@@ -25,6 +26,8 @@ public class SysTreeService {
     @Resource
     private SysDeptMapper sysDeptMapper;
 
+    @Resource
+    private SysAclModuleMapper sysAclModuleMapper;
     /**
      * 针对于部门树的设计的总体的思路是
      * 首先我们要取出当前具有的所有的部门，并且把所有的部门的类型转换成为我们的树的结构
@@ -94,6 +97,53 @@ public class SysTreeService {
     public Comparator<DeptLevelDto> deptSeqComparator = new Comparator<DeptLevelDto>() {
         @Override
         public int compare(DeptLevelDto o1, DeptLevelDto o2) {
+            return o1.getSeq() - o2.getSeq();
+        }
+    };
+
+
+    public List<AclModuleLevelDto> aclTree(){
+        List<SysAclModule> moduleList = sysAclModuleMapper.getAllAclModule();
+        List<AclModuleLevelDto>  dtoList = Lists.newArrayList();
+
+        for(SysAclModule module : moduleList){
+            dtoList.add(AclModuleLevelDto.adapt(module));
+        }
+
+        return aclListToTree(dtoList);
+    }
+    public List<AclModuleLevelDto> aclListToTree(List<AclModuleLevelDto> moduleList){
+        if(CollectionUtils.isEmpty(moduleList)){
+            return Lists.newArrayList();
+        }
+        Multimap<String,AclModuleLevelDto> map = ArrayListMultimap.create();
+        List<AclModuleLevelDto> rootList = Lists.newArrayList();
+        for(AclModuleLevelDto dto:moduleList){
+            map.put(dto.getLevel(),dto);
+            if(LevelUntil.ROOT.equals(dto.getLevel())){
+                rootList.add(dto);
+            }
+        }
+        Collections.sort(rootList,aclComparator);
+        recursiveOrder(rootList,LevelUntil.ROOT,map);
+        return rootList;
+    }
+    public  void recursiveOrder(List<AclModuleLevelDto> dtoList,String level,Multimap<String,AclModuleLevelDto> map){
+        for(int i=0;i<dtoList.size();i++){
+            AclModuleLevelDto dto = dtoList.get(i);
+            String nextLevel = LevelUntil.calculateLevel(level,dto.getId());
+            List<AclModuleLevelDto> nextList =(List<AclModuleLevelDto>) map.get(nextLevel);
+            if(!CollectionUtils.isEmpty(nextList)){
+                Collections.sort(nextList,aclComparator);
+                dto.setAclModuleList(nextList);
+                recursiveOrder(nextList,nextLevel,map);
+            }
+
+        }
+    }
+    public Comparator<AclModuleLevelDto> aclComparator  = new Comparator<AclModuleLevelDto>() {
+        @Override
+        public int compare(AclModuleLevelDto o1, AclModuleLevelDto o2) {
             return o1.getSeq() - o2.getSeq();
         }
     };
