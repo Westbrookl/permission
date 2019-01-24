@@ -273,7 +273,7 @@
                 buttons : {
                     "添加": function(e) {
                         e.preventDefault();
-                        updateAclModule(true, function () {
+                        updateAclModule(true, function (data) {
                             $("#dialog-aclModule-form").dialog("close");
                         }, function (data) {
                             showMessage("新增权限模块", data.msg, false);
@@ -304,6 +304,27 @@
                 }
             })
         }
+
+        function updateAcl(isCreate, successCallback, failCallback) {
+            $.ajax({
+                url: isCreate ? "/sys/acl/save.json" : "/sys/acl/update.json",
+                data: $("#aclForm").serializeArray(),
+                type: 'POST',
+                success: function(result) {
+                    if (result.ret) {
+                        loadAclList(lastClickAclModuleId);
+                        if (successCallback) {
+                            successCallback(result);
+                        }
+                    } else {
+                        if (failCallback) {
+                            failCallback(result);
+                        }
+                    }
+                }
+            })
+        }
+
         function recursiveRenderAclModuleSelect(aclModuleList, level) {
             level = level | 0;
             if (aclModuleList && aclModuleList.length > 0) {
