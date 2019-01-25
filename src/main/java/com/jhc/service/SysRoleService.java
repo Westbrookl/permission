@@ -3,6 +3,7 @@ package com.jhc.service;
 import com.google.common.base.Preconditions;
 import com.jhc.common.RequestHolder;
 import com.jhc.dao.SysRoleMapper;
+import com.jhc.dto.AclModuleLevelDto;
 import com.jhc.exception.ParamException;
 import com.jhc.model.SysRole;
 import com.jhc.param.RoleParam;
@@ -58,4 +59,7 @@ public class SysRoleService {
     public List<SysRole> getAll(){
         return sysRoleMapper.getAllRole();
     }
+
+
+
 }

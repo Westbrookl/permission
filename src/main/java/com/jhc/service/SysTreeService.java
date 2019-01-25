@@ -3,19 +3,25 @@ package com.jhc.service;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.jhc.common.RequestHolder;
+import com.jhc.dao.SysAclMapper;
 import com.jhc.dao.SysAclModuleMapper;
 import com.jhc.dao.SysDeptMapper;
+import com.jhc.dto.AclLevelDto;
 import com.jhc.dto.DeptLevelDto;
 import com.jhc.dto.AclModuleLevelDto;
+import com.jhc.model.SysAcl;
 import com.jhc.model.SysAclModule;
 import com.jhc.model.SysDept;
 import com.jhc.util.LevelUntil;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author jhc on 2019/1/16
@@ -28,6 +34,12 @@ public class SysTreeService {
 
     @Resource
     private SysAclModuleMapper sysAclModuleMapper;
+
+    @Resource
+    private SysCoreService sysCoreService;
+
+    @Resource
+    private SysAclMapper sysAclMapper;
     /**
      * 针对于部门树的设计的总体的思路是
      * 首先我们要取出当前具有的所有的部门，并且把所有的部门的类型转换成为我们的树的结构
@@ -147,4 +159,69 @@ public class SysTreeService {
             return o1.getSeq() - o2.getSeq();
         }
     };
+
+    /**
+     * role acl
+     * @param roleId
+     * @return
+     * 这个方法的作用获取当前用户的所有的权限 以及当前用户下面的所有角色的对应的权限
+     * 如果用户具有该权限便可以先
+     * 如果角色具有该权限便可以设置为被选定
+     *
+     * 其实最终的目的是把当前权限模块下面所有的模块和权限点都绑定到相应的权限模块下面去
+     */
+    public List<AclModuleLevelDto> roleTree(Integer roleId){
+        List<SysAcl> userAclList = sysCoreService.getCurrentUserAclList();
+        List<SysAcl> roleAclList = sysCoreService.getRoleAclList(roleId);
+        List<AclLevelDto> allAclDtoList = Lists.newArrayList();
+        Set<Integer> userAclId = userAclList.stream().map(sysAcl->sysAcl.getId()).collect(Collectors.toSet());
+        Set<Integer> roleAclId = roleAclList.stream().map(sysAcl->sysAcl.getId()).collect(Collectors.toSet());
+
+        List<SysAcl> allAclList = sysAclMapper.getAll();
+        for(SysAcl acl : allAclList){
+            AclLevelDto dto = AclLevelDto.adapt(acl);
+            if(userAclId.contains(acl.getId())){
+                dto.setHasAcl(true);
+            }
+            if(roleAclId.contains(acl.getId())){
+                dto.setChecked(true);
+            }
+            allAclDtoList.add(dto);
+        }
+        return aclDtoListToTree(allAclDtoList);
+    }
+    public List<AclModuleLevelDto> aclDtoListToTree(List<AclLevelDto> allAclDtoList){
+        if(CollectionUtils.isEmpty(allAclDtoList)){
+            return Lists.newArrayList();
+        }
+        List<AclModuleLevelDto> aclModuleDtoList = aclTree();
+        Multimap<Integer,AclLevelDto> map = ArrayListMultimap.create();
+
+        for(AclLevelDto dto : allAclDtoList){
+            if(dto.getStatus() == 1){
+                map.put(dto.getAclModuleId(),dto);
+            }
+        }
+        bindAclWithModule(aclModuleDtoList,map);
+        return aclModuleDtoList;
+    }
+    public void bindAclWithModule(List<AclModuleLevelDto> aclModuleLevelDtoList,Multimap<Integer,AclLevelDto> map){
+        if(CollectionUtils.isEmpty(aclModuleLevelDtoList)){
+            return;
+        }
+        for(AclModuleLevelDto moduleDto : aclModuleLevelDtoList){
+            List<AclLevelDto> aclDto = (List<AclLevelDto>) map.get(moduleDto.getId());
+            if(CollectionUtils.isNotEmpty(aclDto)) {
+                Collections.sort(aclDto, new Comparator<AclLevelDto>() {
+                    @Override
+                    public int compare(AclLevelDto o1, AclLevelDto o2) {
+                        return o1.getSeq() - o2.getSeq();
+                    }
+                });
+                moduleDto.setAclList(aclDto);
+            }
+            bindAclWithModule(moduleDto.getAclModuleList(),map);
+            }
+        }
+
 }

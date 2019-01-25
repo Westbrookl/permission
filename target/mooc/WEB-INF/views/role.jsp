@@ -309,7 +309,7 @@
                                 id: aclPrefix + acl.id,
                                 pId: modulePrefix + acl.aclModuleId,
                                 name: acl.name + ((acl.type == 1) ? '(菜单)' : ''),
-                                chkDisabled: !acl.hasAcl,
+                                chkDisabled: false,
                                 checked: acl.checked,
                                 dataId: acl.id
                             });
