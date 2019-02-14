@@ -104,12 +104,32 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
-  <select id="getRoleIdListByUserId" parameterType="map" resultType="int">
-    SELECT role_id
+  <select id="getUserIdListByRoleIdList" parameterType="map" resultType="int" >
+    SELECT user_id
     FROM sys_role_user
-    <if test="userId != null">
-      WHERE user_id = #{userId}
-    </if>
+    WHERE role_id IN
+    <foreach collection="roleIdList" item="roleId" open="(" close=")" separator=",">
+      #{roleId}
+    </foreach>
+  </select>
+  <delete id="deleteByRoleId" parameterType="map" >
+    DELETE FROM sys_role_user
+    WHERE role_id = #{roleId}
+  </delete>
+
+  <insert id="batchInsert" parameterType="map">
+    INSERT INTO sys_role_user( role_id, user_id,operator, operate_time, operate_ip)
+    VALUES
+    <foreach collection="roleUserList" item="roleUser" separator=",">
+      (#{roleUser.roleId},#{roleUser.userId},#{roleUser.operator},#{roleUser.operateTime},#{roleUser.operateIp})
+    </foreach>
+
+  </insert>
+
+  <select id="getUsersIdList" parameterType="int" resultType="int">
+    SELECT user_id
+    FROM sys_role_user
+    WHERE role_id = #{roleId}
   </select>
 
 </mapper>

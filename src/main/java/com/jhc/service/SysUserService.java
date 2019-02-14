@@ -25,6 +25,10 @@ public class SysUserService {
     @Resource
     private SysUserMapper sysUserMapper;
 
+    public List<SysUser> getAll(){
+        return sysUserMapper.getAll();
+    }
+
     public void save(UserParam userParam){
         BeanValidator.check(userParam);
         if(checkTelephoneExist(userParam.getTelephone(),userParam.getId())){

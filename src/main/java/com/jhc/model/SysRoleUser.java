@@ -1,6 +1,15 @@
 package com.jhc.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
 import java.util.Date;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 
 public class SysRoleUser {
     private Integer id;
@@ -62,4 +71,6 @@ public class SysRoleUser {
     public void setOperateIp(String operateIp) {
         this.operateIp = operateIp == null ? null : operateIp.trim();
     }
+
+
 }

@@ -206,7 +206,7 @@
   <select id="getByIdList" parameterType="map" resultMap="BaseResultMap">
     SELECT <include refid="Base_Column_List"/>
     FROM sys_acl
-    WHERE id IN 
+    WHERE id IN
     <foreach collection="idList" item="id" open="(" close=")" separator=",">
       #{id}
     </foreach>

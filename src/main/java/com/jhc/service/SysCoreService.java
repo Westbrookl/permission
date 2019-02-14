@@ -75,6 +75,6 @@ public class SysCoreService {
 
 
     public boolean isSuperAdmin(){
-        return false;
+        return true;
     }
 }
