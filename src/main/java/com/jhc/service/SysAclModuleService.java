@@ -1,5 +1,6 @@
 package com.jhc.service;
 
+import com.google.common.base.Preconditions;
 import com.jhc.common.RequestHolder;
 import com.jhc.dao.SysAclMapper;
 import com.jhc.dao.SysAclModuleMapper;
@@ -24,6 +25,9 @@ import java.util.List;
 public class SysAclModuleService {
     @Resource
     private SysAclModuleMapper sysAclModuleMapper;
+
+    @Resource
+    private SysAclMapper sysAclMapper;
 
     public void save(SysAclModuleParam param){
         BeanValidator.check(param);
@@ -105,6 +109,25 @@ public class SysAclModuleService {
         }else{
             return module.getLevel();
         }
+    }
+
+    /**
+     * 对于删除权限模块
+     * 首先要检查当前模块下面有没有子模块
+     * 第二要检查当前模块下面有没有新的权限
+     *
+     * @param aclId
+     */
+    public void deleteByAclId(int aclId){
+        SysAclModule aclModule = sysAclModuleMapper.selectByPrimaryKey(aclId);
+        Preconditions.checkNotNull(aclModule,"当前模块不存在");
+        if(sysAclModuleMapper.countByAclModuleId(aclModule.getId()) > 0){
+            throw new ParamException("当前模块下面存在子模块");
+        }
+        if(sysAclMapper.countByAclModuleId(aclModule.getId()) > 0){
+            throw new ParamException("当前模块下面存在权限");
+        }
+        sysAclModuleMapper.deleteByPrimaryKey(aclId);
     }
 
 

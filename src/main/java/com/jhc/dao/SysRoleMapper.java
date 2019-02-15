@@ -21,4 +21,7 @@ public interface SysRoleMapper {
     int getByIdAndName(@Param("id") Integer id,@Param("name")String name);
 
     List<SysRole> getAllRole();
+
+
+    List<SysRole> getByIdList(@Param("idList")List<Integer> idList);
 }

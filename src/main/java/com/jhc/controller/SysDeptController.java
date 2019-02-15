@@ -1,5 +1,6 @@
 package com.jhc.controller;
 
+import com.google.common.collect.Maps;
 import com.jhc.common.JsonData;
 import com.jhc.dto.DeptLevelDto;
 import com.jhc.param.DeptParam;
@@ -8,11 +9,13 @@ import com.jhc.service.SysTreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author jhc on 2019/1/16
@@ -52,6 +55,13 @@ public class SysDeptController {
     @RequestMapping("/dept.page")
     public ModelAndView page(){
         return new ModelAndView("dept");
+    }
+
+    @RequestMapping("/delete.json")
+    @ResponseBody
+    public JsonData delete(@RequestParam("deptId")int deptId){
+        sysDeptService.deleteByDeptId(deptId);
+        return JsonData.success();
     }
 
 }

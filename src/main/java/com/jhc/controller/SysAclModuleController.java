@@ -7,6 +7,7 @@ import com.jhc.service.SysAclModuleService;
 import com.jhc.service.SysTreeService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -51,5 +52,12 @@ public class SysAclModuleController {
     public JsonData tree(){
         List<AclModuleLevelDto> dtoList = sysTreeService.aclTree() ;
         return JsonData.success(dtoList);
+    }
+
+    @RequestMapping("/delete.json")
+    @ResponseBody
+    public JsonData delete(@RequestParam("id") int id){
+        sysAclModuleService.deleteByAclId(id);
+        return JsonData.success();
     }
 }

@@ -1,19 +1,27 @@
 package com.jhc.service;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.jhc.common.RequestHolder;
+import com.jhc.dao.SysRoleAclMapper;
 import com.jhc.dao.SysRoleMapper;
+import com.jhc.dao.SysRoleUserMapper;
+import com.jhc.dao.SysUserMapper;
 import com.jhc.dto.AclModuleLevelDto;
 import com.jhc.exception.ParamException;
 import com.jhc.model.SysRole;
+import com.jhc.model.SysUser;
 import com.jhc.param.RoleParam;
 import com.jhc.util.BeanValidator;
 import com.jhc.util.IpUtil;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author jhc on 2019/1/24
@@ -24,6 +32,14 @@ public class SysRoleService {
     @Resource
     private SysRoleMapper sysRoleMapper;
 
+    @Resource
+    private SysRoleUserMapper sysRoleUserMapper;
+
+    @Resource
+    private SysRoleAclMapper sysRoleAclMapper;
+
+    @Resource
+    private SysUserMapper sysUserMapper;
     public void save(RoleParam param){
         BeanValidator.check(param);
         if(checkExist(param.getId(),param.getName())){
@@ -60,6 +76,37 @@ public class SysRoleService {
         return sysRoleMapper.getAllRole();
     }
 
+    public List<SysRole> getRoleListByAclId(int aclId){
+        List<Integer> roleIdList = sysRoleAclMapper.getRoleIdListByAclId(aclId);
+        if(CollectionUtils.isEmpty(roleIdList)){
+            return Lists.newArrayList();
+        }
+        return sysRoleMapper.getByIdList(roleIdList);
+    }
 
+    /**
+     * 通过角色获取 所有的用户实际上还是通过用户的Id 来获取所有的角色的ID
+     * @param roleList
+     * @return
+     */
+    public List<SysUser> getUserListByRoleList(List<SysRole> roleList){
+        if(CollectionUtils.isEmpty(roleList)){
+            return Lists.newArrayList();
+        }
+        List<Integer> roleIdList = roleList.stream().map(role->role.getId()).collect(Collectors.toList());
+        List<Integer> userIdList = sysRoleUserMapper.getUserIdListByRoleIdList(roleIdList);
+        if(CollectionUtils.isEmpty(userIdList)){
+            return Lists.newArrayList();
+        }
+        return sysUserMapper.getUserByIdList(userIdList);
+    }
+
+   public List<SysRole> getRoleListByUserId(@Param("userId")int userId){
+        List<Integer> roleIdList = sysRoleUserMapper.getRoleIdListByUserId(userId);
+        if(CollectionUtils.isEmpty(roleIdList)){
+            return Lists.newArrayList();
+        }
+        return sysRoleMapper.getByIdList(roleIdList);
+   }
 
 }

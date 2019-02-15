@@ -3,8 +3,11 @@ package com.jhc.service;
 import com.google.common.base.Preconditions;
 import com.jhc.common.RequestHolder;
 import com.jhc.dao.SysDeptMapper;
+import com.jhc.dao.SysRoleMapper;
+import com.jhc.dao.SysUserMapper;
 import com.jhc.exception.ParamException;
 import com.jhc.model.SysDept;
+import com.jhc.model.SysRole;
 import com.jhc.param.DeptParam;
 import com.jhc.util.BeanValidator;
 import com.jhc.util.LevelUntil;
@@ -25,6 +28,8 @@ public class SysDeptService {
     @Resource
     private SysDeptMapper sysDeptMapper;
 
+    @Resource
+    private SysUserMapper sysUserMapper;
 
     /**
      * 对部门更新的具体的步骤的理解：
@@ -126,5 +131,17 @@ public class SysDeptService {
             return  null;
         }
         return sysDept.getLevel();
+    }
+
+    public void deleteByDeptId(int deptId){
+        SysDept dept = sysDeptMapper.selectByPrimaryKey(deptId);
+        Preconditions.checkNotNull(dept,"当前部门不存在");
+        if(sysDeptMapper.countByParentId(dept.getId()) > 0){
+            throw new ParamException("当前部门下面存在子部门");
+        }
+        if(sysUserMapper.countByDeptId(dept.getId()) >  0){
+            throw new ParamException("当前部门下面存在用户");
+        }
+        sysDeptMapper.deleteByPrimaryKey(deptId);
     }
 }

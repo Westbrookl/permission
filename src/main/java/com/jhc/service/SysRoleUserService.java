@@ -73,4 +73,6 @@ public class SysRoleUserService {
         }
         sysRoleUserMapper.batchInsert(roleUserList);
     }
+
+
 }

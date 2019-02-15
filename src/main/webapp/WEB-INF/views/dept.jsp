@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+ <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
     <title>部门管理</title>
@@ -255,7 +255,7 @@
                     $.ajax({
                         url: "/sys/dept/delete.json",
                         data: {
-                            id: deptId
+                            deptId: deptId
                         },
                         success: function (result) {
                             if (result.ret) {
