@@ -212,4 +212,10 @@
     </foreach>
   </select>
 
+  <select id="getByUrl"  parameterType="map" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM sys_acl
+    WHERE url = #{url}<!-- 可以是用正则表达式去匹配-->
+  </select>
+
 </mapper>
